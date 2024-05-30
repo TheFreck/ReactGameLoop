@@ -1,0 +1,1 @@
+C:\Users\chris.freckleton\source\repos\ReactGameLoop\GameLoop\obj\Debug\gameloop.esproj.CoreCompileInputs.cache
