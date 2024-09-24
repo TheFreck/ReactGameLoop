@@ -4,16 +4,16 @@ import Loop from './Loop';
 import { LoopMechanism } from './LoopMechanism';
 
 export const LoopContainer = () => {
-    const [tickLength, setTickLength] = useState(1000);
+    const [tickLength, setTickLength] = useState(10);
     const [isRunning, setIsRunning] = useState(false);
 
     useEffect(() => {
-        console.log(`turning ${isRunning ? "ON" : "OFF"}`);
+        console.log(`******* turning ${isRunning ? "ON" : "OFF"} *******`);
     },[isRunning])
 
-    const checkIsRunning = (frameId) => {
-        console.log("IS RUNNING FRAME ID: ", frameId);
-        console.log("IS RUNNING: ", isRunning);
+    const checkIsRunning = async (frameId) => {
+        console.log("isRunning: ", isRunning);
+        console.log("isRunning frame: ", frameId);
         return isRunning;
     }
 

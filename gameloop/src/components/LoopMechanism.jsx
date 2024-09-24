@@ -1,36 +1,62 @@
 import React, { useCallback, useEffect, useState } from "react";
+import LoopHelpers from "../logic/loopHelpers";
 
-export const LoopMechanism = ({ tickLength, checkIsRunning }) => {
+export const LoopMechanism = ({ tickLength, isRunning, checkIsRunning }) => {
     const [frameTime, setFrameTime] = useState(0);
     const [frameId, setFrameId] = useState(0);
-    const [isRunning, setIsRunning] = useState(false);
 
     useEffect(() => {
+        let stopped = !isRunning;
         let effectiveFrameId = 0;
-        setIsRunning(checkIsRunning(effectiveFrameId));
-        const frame = time => {
-            if (checkIsRunning(effectiveFrameId)) {
-                setFrameTime(time);
-                effectiveFrameId = requestAnimationFrame(frame);
-                console.log("effectiveFrameId: ", effectiveFrameId);
-                setFrameId(effectiveFrameId);
-            }
+        var updateTick = 0;
+        const frame = async time => {
+            checkIsRunning(updateTick).then((running) => {
+                if (running && !stopped) {
+                    setFrameTime(time);
+                    if (++effectiveFrameId % tickLength === 0) {
+                        LoopHelpers.updateMethod(updateTick).then((tick) => {
+                            checkIsRunning(updateTick).then(stillRunning => {
+                                if (stillRunning && !stopped) {
+                                    updateTick = tick;
+                                }
+                                else {
+                                    cancelAnimation(effectiveFrameId);
+                                    stopped = true;
+                                }
+                            })
+                        });
+                    }
+                    setFrameId(requestAnimationFrame(frame));
+                }
+                else {
+                    cancelAnimation(effectiveFrameId);
+                    stopped = true;
+                    effectiveFrameId = 0;
+                }
+            })
         };
-        if (checkIsRunning(effectiveFrameId)) {
-            requestAnimationFrame(frame);
-        }
-        else {
-            console.log("not running");
-            effectiveFrameId = 0;
-        }
-        return () => {
-            for(var i=0; i<10; i++){
-                cancelAnimationFrame(effectiveFrameId-i);
-                console.log("cancelled frame: ", effectiveFrameId-i);
+        checkIsRunning(updateTick).then(running => {
+            if (running && !stopped) {
+                requestAnimationFrame(frame);
             }
+            else {
+                effectiveFrameId = 0;
+            }
+        })
+        return () => {
+            cancelAnimation(effectiveFrameId);
+            stopped = true;
             effectiveFrameId = 0;
         }
     }, []);
+
+    const cancelAnimation = (frame) => {
+        for (var i = -100; i < 100; i++) {
+            cancelAnimationFrame(frame - i);
+            console.log("cancelling frame: ", frame - i);
+        }
+        return;
+    }
 
     const FrameCallback = useCallback(() =>
         <div>
@@ -41,12 +67,3 @@ export const LoopMechanism = ({ tickLength, checkIsRunning }) => {
 
     return <FrameCallback />;
 }
-
-// useEffect(() => {
-//     const frame = time => {
-//         setFrameTime(time);
-//         setFrameId(requestAnimationFrame(frame));
-//     };
-//     requestAnimationFrame(frame);
-//     return () => cancelAnimationFrame(frameId);
-// }, []);

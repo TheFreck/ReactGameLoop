@@ -1,6 +1,7 @@
 export const LoopHelpers = {
-    proceed: (run) => {
-        return run();
+    updateMethod: async (frameId) => {
+        console.log("updated: ", frameId+1);
+        return (frameId+1);
     }
 };
 
