@@ -29,7 +29,7 @@ export const LoopContainer = ({appId}) => {
                 setGlobals({
                     loopFrame: 0
                 });
-                setTimeout(setIsRunning(!isRunning);
+                setTimeout(setIsRunning(!isRunning));
             }}
             >
                 Reset
