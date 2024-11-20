@@ -1,69 +1,76 @@
-import React, { useCallback, useEffect, useState } from "react";
-import LoopHelpers from "../logic/loopHelpers";
+import react, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import LoopContext from "../contexts/LoopContext";
+import loopHelpers from "../logic/loopHelpers";
+import LoopBody from "./LoopBody";
 
-export const LoopMechanism = ({ tickLength, isRunning, checkIsRunning }) => {
-    const [frameTime, setFrameTime] = useState(0);
-    const [frameId, setFrameId] = useState(0);
+export const LoopMechanism = ({ isRunning, containerId }) => {
+    const { globals,setGlobals } = useContext(LoopContext);
+    const [frame,setFrame] = useState(globals.loopFrame);
+    const loopRef = useRef();
 
     useEffect(() => {
-        let stopped = !isRunning;
-        let effectiveFrameId = 0;
-        var updateTick = 0;
-        const frame = async time => {
-            checkIsRunning(updateTick).then((running) => {
-                if (running && !stopped) {
-                    setFrameTime(time);
-                    if (++effectiveFrameId % tickLength === 0) {
-                        LoopHelpers.updateMethod(updateTick).then((tick) => {
-                            checkIsRunning(updateTick).then(stillRunning => {
-                                if (stillRunning && !stopped) {
-                                    updateTick = tick;
-                                }
-                                else {
-                                    cancelAnimation(effectiveFrameId);
-                                    stopped = true;
-                                }
-                            })
-                        });
-                    }
-                    setFrameId(requestAnimationFrame(frame));
-                }
-                else {
-                    cancelAnimation(effectiveFrameId);
-                    stopped = true;
-                    effectiveFrameId = 0;
-                }
-            })
+        if(loopRef === undefined) return;
+        loopRef.current = {
+            loopId: containerId,
+            loopFrame: globals.loopFrame,
+            loopComplete: true,
+            intId: 0
         };
-        checkIsRunning(updateTick).then(running => {
-            if (running && !stopped) {
-                requestAnimationFrame(frame);
+        if (loopRef.current.loopId !== 0) {
+            if (isRunning) {
+                loopRef.current.intId = setInterval(march, 1000, fr => {
+                    setComplete(true, comp => {
+                        setGlobals({
+                            loopFrame: loopRef.current.loopFrame,
+                        })
+                    });
+                });
             }
             else {
-                effectiveFrameId = 0;
+                clearInterval(loopRef.current.intId);
             }
-        })
+        }
         return () => {
-            cancelAnimation(effectiveFrameId);
-            stopped = true;
-            effectiveFrameId = 0;
+            clearInterval(loopRef?.current?.intId);
         }
     }, []);
 
-    const cancelAnimation = (frame) => {
-        for (var i = -100; i < 100; i++) {
-            cancelAnimationFrame(frame - i);
-            console.log("cancelling frame: ", frame - i);
-        }
-        return;
+    const updateFrame = async (val,cb) => {
+        loopRef.current.loopFrame = val;
+        setFrame(val);
+        await cb(loopRef.current.loopFrame);
     }
 
-    const FrameCallback = useCallback(() =>
-        <div>
-            <div>Frame Id: {frameId}</div>
-            <div>Frame Time: {frameTime}</div>
-        </div>, [frameId]
-    );
+    const setComplete = (val,cb) => {
+        loopRef.current.loopComplete = val;
+        cb(loopRef.current.loopComplete);
+    }
 
-    return <FrameCallback />;
+    const march = async (cb) => {
+        if (loopRef && loopRef.current && loopRef.current.loopComplete !== undefined) {
+            await setComplete(false, val => {
+                loopHelpers.calculateFrame(loopRef.current.loopFrame, num => {
+                    updateFrame(num,fr => {
+                        cb(fr);
+                    });
+                })
+            });
+        }
+        else {
+            // wait 
+        }
+    }
+
+
+
+    return <div
+        ref={loopRef}
+    >
+        <div>
+            tick: {frame}
+        </div>
+        <LoopBody />
+    </div>
 }
+
+export default LoopMechanism;

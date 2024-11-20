@@ -1,8 +1,7 @@
-export const LoopHelpers = {
-    updateMethod: async (frameId) => {
-        console.log("updated: ", frameId+1);
-        return (frameId+1);
+export default {
+    calculateFrame: async (frame,cb) => {
+        const next = (frame+1)%111;
+        console.log("next: ", next);
+        cb(next);
     }
-};
-
-export default LoopHelpers;
+}

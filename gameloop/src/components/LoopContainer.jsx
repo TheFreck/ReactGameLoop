@@ -1,30 +1,42 @@
-import React, { Suspense, useCallback, useState,useEffect } from 'react';
-import LoopContext from '../contexts/LoopContext';
-import Loop from './Loop';
-import { LoopMechanism } from './LoopMechanism';
+import react, { useCallback, useContext, useEffect, useState } from "react";
+import LoopContext from "../contexts/LoopContext";
+import LoopMechanism from "./LoopMechanism";
 
-export const LoopContainer = () => {
-    const [tickLength, setTickLength] = useState(10);
-    const [isRunning, setIsRunning] = useState(false);
+export const LoopContainer = ({appId}) => {
+    const [isRunning,setIsRunning] = useState(false);
+    const [containerId, setContainerId] = useState(0);
+    const [globals,setGlobals] = useState({loopFrame: 0});
 
     useEffect(() => {
-        console.log(`******* turning ${isRunning ? "ON" : "OFF"} *******`);
-    },[isRunning])
+        if(appId !== 0)
+            setContainerId(appId);
+        return () => setContainerId(0);
+    },[]);
 
-    const checkIsRunning = async (frameId) => {
-        console.log("isRunning: ", isRunning);
-        console.log("isRunning frame: ", frameId);
-        return isRunning;
-    }
+    const LoopMechanismCallback = useCallback(() => {
+        return <LoopMechanism isRunning={isRunning} containerId={containerId} />
+    },[isRunning,containerId]);
 
-    const LoopMechanismCallback = useCallback(() => 
-        <LoopMechanism tickLength={tickLength} isRunning={isRunning} checkIsRunning={checkIsRunning} />,
-    [isRunning,tickLength]);
-    
-    return <>
-        <button onClick={() => setIsRunning(!isRunning)}>{isRunning ? "STOP" : "START"}</button>
-        <LoopMechanismCallback />
-    </>
+    return <div>
+        <LoopContext.Provider
+            value={{globals,setGlobals}}
+        >
+            <h1>
+                Loop Container
+            </h1>
+            <button onClick={() => setIsRunning(!isRunning)}>{isRunning ? "Stop" : "Start"}</button>
+            <button onClick={() => {
+                setGlobals({
+                    loopFrame: 0
+                });
+                setTimeout(setIsRunning(!isRunning)
+            }}
+            >
+                Reset
+            </button>
+            <LoopMechanismCallback />
+        </LoopContext.Provider>
+        </div>
 }
 
 export default LoopContainer;
