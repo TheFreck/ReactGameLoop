@@ -1,0 +1,8 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/.vs
+/reactgameloop.client/obj/Debug
+/ReactGameLoop.Server/bin/Debug/net8.0
+/ReactGameLoop.Server/obj

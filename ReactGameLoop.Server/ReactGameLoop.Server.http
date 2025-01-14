@@ -1,0 +1,6 @@
+@ReactGameLoop.Server_HostAddress = http://localhost:5243
+
+GET {{ReactGameLoop.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
