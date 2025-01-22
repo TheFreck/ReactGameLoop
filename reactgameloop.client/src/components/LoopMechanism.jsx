@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import LoopBody from "./LoopBody";
 import { calculateFrame } from "../helpers/loopHelpers";
 
-export const LoopMechanism = ({loopRef,init}) => {
+export const LoopMechanism = ({loopRef}) => {
     const [frame,setFrame] = useState(0);
 
     useEffect(() => {

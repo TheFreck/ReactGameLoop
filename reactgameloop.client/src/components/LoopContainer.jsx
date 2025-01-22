@@ -36,7 +36,7 @@ export const LoopContainer = ({appId}) => {
         setReady(!ready);
     }
 
-    const LoopMechanismCallback = useCallback(() => <LoopMechanism containerId={containerId} loopRef={loopRef} init={init} />, [ready,containerId]);
+    const LoopMechanismCallback = useCallback(() => <LoopMechanism loopRef={loopRef} />, [ready,containerId]);
 
     return <Box>
         <Typography>

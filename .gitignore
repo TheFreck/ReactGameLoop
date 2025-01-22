@@ -6,3 +6,6 @@
 /reactgameloop.client/obj/Debug
 /ReactGameLoop.Server/bin/Debug/net8.0
 /ReactGameLoop.Server/obj
+/reactgameloop.client/obj/Release
+/ReactGameLoop.Server/bin/Release/net8.0
+/ReactGameLoop.Server/.config
