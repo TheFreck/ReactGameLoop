@@ -14,7 +14,7 @@ namespace ReactGameLoop.Server.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok("You made it here");
+            return Ok("You Got Me");
         }
     }
 }
